@@ -52,9 +52,9 @@ class MainActivity : AppCompatActivity() {
 //            delayWithIndex(2, 1000)
 //            delayWithIndex(3, 1000)
 
-            simpleDelay(1000)
-            simpleDelay(1000)
-            simpleDelay(1000)
+            simpleDelay("Ожидание-1()", 1000)
+            simpleDelay("Ожидание-2()", 1000)
+            simpleDelay("Ожидание-3()", 1000)
 
 //            delay(1000)
 //            delay(1000)
@@ -63,10 +63,22 @@ class MainActivity : AppCompatActivity() {
         logD("---------------------------------------")
     }
 
-    suspend fun simpleDelay(ms: Int) {
-        return suspendCoroutine { continuation ->
-            TimeUnit.MILLISECONDS.sleep(ms.toLong())
-            continuation.resume(Unit)
+    suspend fun simpleDelay(comment: String, ms: Int) {
+        logD(comment)
+
+        return suspendCancellableCoroutine { continuation ->
+
+            continuation.invokeOnCancellation { throwable ->
+                // Кажется, "resumeWithException" здесь лишнее.
+                continuation.resumeWithException(throwable ?: Exception("invokeOnCancellation()"))
+            }
+
+            if (continuation.isActive) {
+                TimeUnit.MILLISECONDS.sleep(ms.toLong())
+                continuation.resume(Unit)
+            } else {
+                continuation.resume(Unit)
+            }
         }
     }
 
