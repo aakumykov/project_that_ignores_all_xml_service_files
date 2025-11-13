@@ -76,14 +76,15 @@ class MainActivity : AppCompatActivity() {
             val context = continuation.context
             val job = context.job
 
-            logD("перед repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
+//            logD("перед repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
             repeat(sec * 5) {
-                logD("continuation: isActive=${continuation.isActive}, isCompleted=${continuation.isCompleted}, isCancelled=${continuation.isCancelled}")
-                TimeUnit.MILLISECONDS.sleep(200)
+//                logD("continuation: isActive=${continuation.isActive}, isCompleted=${continuation.isCompleted}, isCancelled=${continuation.isCancelled}")
+                if (continuation.isActive) TimeUnit.MILLISECONDS.sleep(200)
+                else continuation.resume(Unit)
             }
-            logD("после repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
+//            logD("после repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
 
-            logD("continuation-${continuation.hashCode()}")
+//            logD("continuation-${continuation.hashCode()}")
             continuation.resume(Unit)
         }
     }
