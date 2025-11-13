@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.project_that_ignores_all_xml_service_files.databinding.ActivityMainBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.TimeUnit
@@ -43,8 +44,6 @@ class MainActivity : AppCompatActivity() {
         runCoroutines()
     }
 
-    private var currentJob: Job? = null
-
     private fun runCoroutines() {
         logD("")
         logD("----------- runCoroutines() -----------")
@@ -74,11 +73,14 @@ class MainActivity : AppCompatActivity() {
                 continuation.resumeWithException(throwable ?: Exception("invokeOnCancellation()"))
             }*/
 
-            logD("перед repeat{}")
+            val context = continuation.context
+            val job = context.job
+
+            logD("перед repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
             repeat(sec * 5) {
                 TimeUnit.MILLISECONDS.sleep(200)
             }
-            logD("после repeat{}")
+            logD("после repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
 
             logD("continuation-${continuation.hashCode()}")
             continuation.resume(Unit)
