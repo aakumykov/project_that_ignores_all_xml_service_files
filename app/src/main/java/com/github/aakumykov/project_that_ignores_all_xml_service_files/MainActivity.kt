@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {
 
             logD("перед repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
             repeat(sec * 5) {
+                logD("continuation: isActive=${continuation.isActive}, isCompleted=${continuation.isCompleted}, isCancelled=${continuation.isCancelled}")
                 TimeUnit.MILLISECONDS.sleep(200)
             }
             logD("после repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
