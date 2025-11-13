@@ -1,5 +1,6 @@
 package com.github.aakumykov.project_that_ignores_all_xml_service_files
 
+import android.icu.util.UniversalTimeScale.toLong
 import android.os.Bundle
 import android.util.Log
 import android.util.Log.d
@@ -66,13 +67,13 @@ class MainActivity : AppCompatActivity() {
         val d = Dispatchers.IO
 
         currentJob = lifecycleScope.launch (eh + d) {
-//            delayWithIndex(1, 1000)
-//            delayWithIndex(2, 1000)
-//            delayWithIndex(3, 1000)
+            delayWithIndex(1, 1000)
+            delayWithIndex(2, 1000)
+            delayWithIndex(3, 1000)
 
-                simpleDelay("Ожидание-1()", 1)
-                simpleDelay("Ожидание-2()", 1)
-                simpleDelay("Ожидание-3()", 1)
+//                simpleDelay("Ожидание-1()", 1)
+//                simpleDelay("Ожидание-2()", 1)
+//                simpleDelay("Ожидание-3()", 1)
 
 //            delay(1000)
 //            delay(1000)
@@ -129,20 +130,28 @@ class MainActivity : AppCompatActivity() {
     /**
      * @return Количество миллисекунд фактического ожидания.
      */
-    private suspend fun delayWithIndex(index: Int, timeoutMs: Int): Int {
-        val funName = "Ожидание($index)"
-        logD(funName)
+    private suspend fun delayWithIndex(index: Int, timeoutMs: Int): Unit {
         return suspendCancellableCoroutine { cancellableContinuation ->
+
+            val sleepingStep = 200
+            val iterations = timeoutMs / sleepingStep
+
+            val funName = "delayWithIndex($index)"
+            logD(funName)
+
             cancellableContinuation.invokeOnCancellation { throwable ->
-                cancellableContinuation.resumeWithException(throwable ?: Exception("$funName отменено"))
+                logW("$funName invokeOnCancellation: ${throwable?.message}")
             }
-            repeat(timeoutMs) { ms ->
-                if (cancellableContinuation.isActive) {
-                    TimeUnit.MILLISECONDS.sleep(1)
-                } else {
-                    cancellableContinuation.resume(ms)
+
+            repeat(iterations) { ms ->
+                if (cancellableContinuation.isCancelled) {
+                    logW("$funName отменена")
+                    return@suspendCancellableCoroutine
                 }
+                TimeUnit.MILLISECONDS.sleep(sleepingStep.toLong())
             }
+
+            cancellableContinuation.resume(Unit)
         }
     }
 }
