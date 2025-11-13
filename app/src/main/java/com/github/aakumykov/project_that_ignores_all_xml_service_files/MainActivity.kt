@@ -68,16 +68,14 @@ class MainActivity : AppCompatActivity() {
 
         return suspendCancellableCoroutine { continuation ->
 
-            continuation.invokeOnCancellation { throwable ->
+            /*continuation.invokeOnCancellation { throwable ->
                 // Кажется, "resumeWithException" здесь лишнее.
                 continuation.resumeWithException(throwable ?: Exception("invokeOnCancellation()"))
-            }
+            }*/
 
-            if (continuation.isActive) {
-                TimeUnit.MILLISECONDS.sleep(ms.toLong())
-                continuation.resume(Unit)
-            } else {
-                continuation.resume(Unit)
+            repeat(ms) {
+                if (continuation.isActive) TimeUnit.MILLISECONDS.sleep(1)
+                else continuation.resume(Unit)
             }
         }
     }
