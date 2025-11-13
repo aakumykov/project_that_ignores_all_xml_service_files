@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        binding.button1.setOnClickListener { runCoroutines() }
         runCoroutines()
     }
 
