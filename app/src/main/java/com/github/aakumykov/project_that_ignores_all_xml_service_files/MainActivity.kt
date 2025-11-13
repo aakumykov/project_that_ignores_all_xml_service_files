@@ -47,13 +47,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.button1.setOnClickListener { runCoroutines() }
-        binding.cancelButton.setOnClickListener {
-            currentJob?.cancel(CancellationException("Отменено пользователем"))
-                ?: run { "Нет текущей задачи".also {
-                    logW(it)
-                    Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-                } }
-        }
+        binding.cancelButton.setOnClickListener { cancelCurrentJob() }
 
         runCoroutines()
     }
@@ -86,15 +80,18 @@ class MainActivity : AppCompatActivity() {
         logD("---------------------------------------")
     }
 
+    private fun cancelCurrentJob() {
+        currentJob?.cancel(CancellationException("Отменено пользователем"))
+            ?: run { "Нет текущей задачи".also {
+                logW(it)
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            } }
+    }
+
     suspend fun simpleDelay(comment: String, sec: Int) {
-        logD(comment)
+        logD("${comment} ($sec сек)")
 
         return suspendCancellableCoroutine { continuation ->
-
-            /*continuation.invokeOnCancellation { throwable ->
-                // Кажется, "resumeWithException" здесь лишнее.
-                continuation.resumeWithException(throwable ?: Exception("invokeOnCancellation()"))
-            }*/
 
             val context = continuation.context
             val job = context.job
@@ -102,12 +99,11 @@ class MainActivity : AppCompatActivity() {
             logD("перед repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
             repeat(sec * 5) {
                 logD("continuation: isActive=${continuation.isActive}, isCompleted=${continuation.isCompleted}, isCancelled=${continuation.isCancelled}")
-                if (continuation.isActive) TimeUnit.MILLISECONDS.sleep(200)
+                if (continuation.isActive) TimeUnit.MILLISECONDS.sleep(500)
                 else continuation.resume(Unit)
             }
             logD("после repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
 
-            logD("continuation-${continuation.hashCode()}")
             continuation.resume(Unit)
         }
     }
