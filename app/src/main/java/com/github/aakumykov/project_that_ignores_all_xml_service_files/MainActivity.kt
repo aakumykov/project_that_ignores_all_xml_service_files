@@ -2,6 +2,7 @@ package com.github.aakumykov.project_that_ignores_all_xml_service_files
 
 import android.os.Bundle
 import android.util.Log
+import android.util.Log.d
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -69,9 +70,9 @@ class MainActivity : AppCompatActivity() {
 //            delayWithIndex(2, 1000)
 //            delayWithIndex(3, 1000)
 
-            simpleDelay("Ожидание-1()", 1)
-            simpleDelay("Ожидание-2()", 1)
-            simpleDelay("Ожидание-3()", 1)
+                simpleDelay("Ожидание-1()", 1)
+                simpleDelay("Ожидание-2()", 1)
+                simpleDelay("Ожидание-3()", 1)
 
 //            delay(1000)
 //            delay(1000)
@@ -89,20 +90,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     suspend fun simpleDelay(comment: String, sec: Int) {
-        logD("${comment} ($sec сек)")
+
+        logD("$comment ($sec сек)")
 
         return suspendCancellableCoroutine { continuation ->
 
             val context = continuation.context
             val job = context.job
 
-            logD("перед repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
+            fun contextInfo(): String = "continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}"
+
             repeat(sec * 5) {
-                logD("continuation: isActive=${continuation.isActive}, isCompleted=${continuation.isCompleted}, isCancelled=${continuation.isCancelled}")
-                if (continuation.isActive) TimeUnit.MILLISECONDS.sleep(500)
-                else continuation.resume(Unit)
+                when {
+                    continuation.isActive -> {
+                        logD("$comment ожидание (${contextInfo()})")
+                        TimeUnit.MILLISECONDS.sleep(500)
+                    }
+                    continuation.isCancelled -> {
+                        logW("${comment} отменено ${contextInfo()}")
+                        continuation.resumeWithException(CancellationException("continuation.isCancelled"))
+                        return@suspendCancellableCoroutine
+                    }
+                    continuation.isCompleted -> {
+                        logD("$comment завершено")
+//                        continuation.resume(Unit)
+//                        return@suspendCancellableCoroutine
+                    }
+                    else -> {
+                        logW("Неизвестный статус: ${contextInfo()}")
+                    }
+                }
             }
-            logD("после repeat{continuation-${continuation.hashCode()},context-${context.hashCode()},job-${job.hashCode()}}")
 
             continuation.resume(Unit)
         }
