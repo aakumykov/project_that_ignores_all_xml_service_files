@@ -53,9 +53,9 @@ class MainActivity : AppCompatActivity() {
 //            delayWithIndex(2, 1000)
 //            delayWithIndex(3, 1000)
 
-            simpleDelay("Ожидание-1()", 1000)
-            simpleDelay("Ожидание-2()", 1000)
-            simpleDelay("Ожидание-3()", 1000)
+            simpleDelay("Ожидание-1()", 1)
+            simpleDelay("Ожидание-2()", 1)
+            simpleDelay("Ожидание-3()", 1)
 
 //            delay(1000)
 //            delay(1000)
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         logD("---------------------------------------")
     }
 
-    suspend fun simpleDelay(comment: String, ms: Int) {
+    suspend fun simpleDelay(comment: String, sec: Int) {
         logD(comment)
 
         return suspendCancellableCoroutine { continuation ->
@@ -74,10 +74,14 @@ class MainActivity : AppCompatActivity() {
                 continuation.resumeWithException(throwable ?: Exception("invokeOnCancellation()"))
             }*/
 
-            repeat(ms) {
-                if (continuation.isActive) TimeUnit.MILLISECONDS.sleep(1)
-                else continuation.resume(Unit)
+            logD("перед repeat{}")
+            repeat(sec * 5) {
+                TimeUnit.MILLISECONDS.sleep(200)
             }
+            logD("после repeat{}")
+
+            logD("continuation-${continuation.hashCode()}")
+            continuation.resume(Unit)
         }
     }
 
