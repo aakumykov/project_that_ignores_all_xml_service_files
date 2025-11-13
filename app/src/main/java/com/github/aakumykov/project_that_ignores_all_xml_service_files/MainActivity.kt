@@ -48,17 +48,17 @@ class MainActivity : AppCompatActivity() {
         logD("")
         logD("----------- runCoroutines() -----------")
         lifecycleScope.launch {
-            delayWithIndex(1, 1000)
-            delayWithIndex(2, 1000)
-            delayWithIndex(3, 1000)
+//            delayWithIndex(1, 1000)
+//            delayWithIndex(2, 1000)
+//            delayWithIndex(3, 1000)
 
 //            simpleDelay(1000)
 //            simpleDelay(1000)
 //            simpleDelay(1000)
 
-            /*delay(1000)
             delay(1000)
-            delay(1000)*/
+            delay(1000)
+            delay(1000)
         }
         logD("---------------------------------------")
     }
